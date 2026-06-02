@@ -1,0 +1,16 @@
+---
+name: Check Renovate Config
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: konflux-ci/renovate-config-validator-action@adca50c2ce7ba1f3fab4d15f8783ad239f8090ae # main
+        with:
+          config_file: .github/renovate.json
