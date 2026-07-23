@@ -11,7 +11,7 @@ exposes availability as Prometheus gauge/histogram metrics at `/metrics`.
 - **Error handling**: wrap errors with context -- `fmt.Errorf("doing X: %w", err)`; never discard errors
 - **Logging**: use standard `log.Logger` (not `slog` or third-party); pass instance via constructor
 - **HTTP**: always `http.NewRequestWithContext`, never `http.NewRequest`
-- **Resource cleanup**: `defer resp.Body.Close()` immediately after the error check on the response
+- **Resource cleanup**: drain and close response bodies — `defer func() { io.Copy(io.Discard, resp.Body); resp.Body.Close() }()` immediately after the error check on the response
 - **Context**: `context.Context` as first parameter to any function that does I/O or may block
 - **Naming**: Go conventions -- `MixedCaps`, acronyms all caps (`HTTP`, `URL`, `ID`)
 - **Tests**: table-driven tests; `httptest.NewServer` for HTTP mocking; `context.WithTimeout` to avoid hangs
@@ -50,4 +50,5 @@ Follow the pattern in `pkg/checks/` (use `git.go` as the simplest reference):
 - **Gauge** `<prefix>_check_gauge`: `1` = up, `0` = down. Note: `CheckResult.code` uses `0` = success,
   `1` = failure -- values are **flipped** via `metrics.FlipValue()` before gauge recording.
 - **Histogram** `<prefix>_check_histogram`: always records value `1`; uses labels `check`, `reason`, `status`
-  where `status` is `"Succeeded"` or `"Failed"` and `reason` is the error message (empty on success).
+  where `status` is `"Succeeded"` or `"Failed"` and `reason` is a normalized error category (empty on success).
+  Prefer bounded reason values (e.g., `"timeout"`, `"error"`) over raw `err.Error()` to avoid unbounded label cardinality.
