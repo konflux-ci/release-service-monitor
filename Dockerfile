@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/go-toolset:9.8-1783442369 as builder
+FROM registry.access.redhat.com/ubi9/go-toolset:9.8-1790174511 as builder
 
 COPY go.mod go.mod
 COPY go.sum go.sum
